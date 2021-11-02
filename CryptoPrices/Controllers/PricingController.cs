@@ -23,7 +23,7 @@ namespace CryptoPrices.Controllers
 
         public IActionResult Index()
         {
-            ViewData["Prices"] = _priceComparisonService.GetPriceRecords().First();
+            ViewData["Prices"] = _priceComparisonService.GetPriceRecords();
             return View();
         }
     }
