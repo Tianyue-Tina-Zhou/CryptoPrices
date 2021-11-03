@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace CryptoPrices.Models
 {
+    // Json mapping object for the response from Kraken
+    internal class KrakenData
+    {
+        public string[] error { get; set; }
+
+        [JsonPropertyName("result")]
+        public CurrentPrice CurrentPrice { get; set; }
+    }
+
     internal class CurrentPrice
     {
         [JsonPropertyName("XXBTZUSD")]
@@ -17,9 +24,8 @@ namespace CryptoPrices.Models
 
     internal class Value
     {
-        // TODO change this! 
-        //public string[] a { get; set; } = new string[3];
         public List<string> a { get; set; } = new List<string>(3);
+
         public List<string> b { get; set; } = new List<string>(3);
 
         [JsonIgnore]
@@ -27,14 +33,5 @@ namespace CryptoPrices.Models
 
         [JsonIgnore]
         public decimal BuyPrice => Math.Round(System.Convert.ToDecimal(b[0]), 2);
-    }
-
-    // Json mapping object for the response from Kraken
-    internal class KrakenData
-    {
-        public string[] error { get; set; }
-
-        [JsonPropertyName("result")]
-        public CurrentPrice CurrentPrice { get; set; }
     }
 }

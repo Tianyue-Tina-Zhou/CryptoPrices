@@ -1,5 +1,3 @@
-using System;
-
 namespace CryptoPrices.Models
 {
     public class ErrorViewModel

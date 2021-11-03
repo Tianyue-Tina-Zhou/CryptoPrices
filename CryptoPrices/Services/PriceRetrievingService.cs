@@ -1,12 +1,10 @@
 ﻿using CryptoPrices.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +14,7 @@ namespace CryptoPrices.Services
     {
         private ILogger _logger;
         private Timer _timer;
-        CancellationToken _cancellationToken;
+        private CancellationToken _cancellationToken;
         private HttpClient _coinbaseClient;
         private HttpClient _krakenClient;
 
@@ -41,10 +39,10 @@ namespace CryptoPrices.Services
             priceRecords.Add(bitcoinKraken.Result);
             priceRecords.Add(ethereumCoinbase.Result);
             priceRecords.Add(ethereumKraken.Result);
-            return priceRecords.Where(x => x!= null);
+            return priceRecords.Where(x => x != null);
         }
 
-        async Task<PriceRecord> GetCoinbaseData(CryptoCurrency type)
+        private async Task<PriceRecord> GetCoinbaseData(CryptoCurrency type)
         {
             Task<Data> buyPrice = RetrieveCoinbaseDataAsync(type, true);
             Task<Data> sellPrice = RetrieveCoinbaseDataAsync(type, false);
@@ -53,7 +51,7 @@ namespace CryptoPrices.Services
             return new PriceRecord() { BuyPrice = buyPrice.Result.Price, SellPrice = sellPrice.Result.Price, Type = type, Client = "Coinbase" };
         }
 
-        async Task<PriceRecord> GetKrakenData(CryptoCurrency type)
+        private async Task<PriceRecord> GetKrakenData(CryptoCurrency type)
         {
             KrakenData data = await RetrieveKrakenDataAsync(type);
             if (data == null) return null;
@@ -61,7 +59,13 @@ namespace CryptoPrices.Services
             return new PriceRecord() { BuyPrice = value.BuyPrice, SellPrice = value.SellPrice, Type = type, Client = "Kraken" };
         }
 
-        async Task<Data> RetrieveCoinbaseDataAsync(CryptoCurrency type, bool buy)
+        /// <summary>
+        /// Gets buying or selling price from Coinbase
+        /// </summary>
+        /// <param name="type">Type of <see cref="CryptoCurrency"></param>
+        /// <param name="buy">Whether the purchase price is needed</param>
+        /// <returns></returns>
+        private async Task<Data> RetrieveCoinbaseDataAsync(CryptoCurrency type, bool buy)
         {
             Data data = null;
             try
@@ -74,7 +78,6 @@ namespace CryptoPrices.Services
                     string responseBody = await response.Content.ReadAsStringAsync();
                     data = JsonSerializer.Deserialize<CoinbaseData>(responseBody)?.Data;
                 }
-
             }
             catch (HttpRequestException e)
             {
@@ -83,7 +86,12 @@ namespace CryptoPrices.Services
             return data;
         }
 
-        async Task<KrakenData> RetrieveKrakenDataAsync(CryptoCurrency type)
+        /// <summary>
+        /// Gets buying or selling price from Kraken
+        /// </summary>
+        /// <param name="type">Type of <see cref="CryptoCurrency"></param>
+        /// <returns></returns>
+        private async Task<KrakenData> RetrieveKrakenDataAsync(CryptoCurrency type)
         {
             KrakenData data = null;
             try
@@ -97,7 +105,6 @@ namespace CryptoPrices.Services
                     string responseBody = await response.Content.ReadAsStringAsync();
                     data = JsonSerializer.Deserialize<KrakenData>(responseBody);
                 }
-
             }
             catch (HttpRequestException e)
             {
@@ -105,20 +112,5 @@ namespace CryptoPrices.Services
             }
             return data;
         }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Timed Background Service is stopping.");
-
-            _timer?.Change(Timeout.Infinite, 0);
-
-            return Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
-
     }
 }

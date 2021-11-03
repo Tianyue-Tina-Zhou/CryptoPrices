@@ -13,14 +13,21 @@ namespace CryptoPrices.Services
         private ILogger _logger;
         private Timer _timer;
         private IPriceRetrievingService _priceRetrievingService;
-        IEnumerable<PriceRecord> _priceRecords;
-        IList<PriceComparisonResult> _priceComparisonResults;
+        private IEnumerable<PriceRecord> _priceRecords;
+        private IList<PriceComparisonResult> _priceComparisonResults;
 
         public PriceComparisonService(ILogger<PriceComparisonService> logger, IPriceRetrievingService priceRetrievingService)
         {
             _logger = logger;
             _priceRetrievingService = priceRetrievingService;
             StartAsync();
+        }
+
+        public IEnumerable<PriceComparisonResult> GetPriceComparisonResults()
+        {
+            if (_priceComparisonResults == null)
+                RefreshPrice(null);
+            return _priceComparisonResults;
         }
 
         public Task StartAsync()
@@ -32,37 +39,6 @@ namespace CryptoPrices.Services
 
             return Task.CompletedTask;
         }
-
-        public IEnumerable<PriceRecord> GetPriceRecords()
-        {
-            if (_priceRecords == null)
-                RefreshPrice(null) ;
-            return _priceRecords;
-        }
-
-        public IEnumerable<PriceComparisonResult> GetPriceComparisonResults()
-        {
-            if (_priceComparisonResults == null)
-                RefreshPrice(null);
-            return _priceComparisonResults;
-        }
-
-        private void RefreshPrice(object state)
-        {
-            _logger.LogInformation("Price Retrieving Service is refreshing.");
-            _priceRecords = _priceRetrievingService.RefreshPriceRecordsAsync().Result;
-            var cryptoPrices = _priceRecords.GroupBy(x => x.Type).ToList();
-            var temp = new List<PriceComparisonResult>();
-            foreach (var group in cryptoPrices)
-            {
-                temp.Add(new PriceComparisonResult() { PurchaseFrom = group.First(x =>x.BuyPrice == group.Min(x =>x.BuyPrice)).Client
-                                                                          , SellTo = group.First(x => x.SellPrice == group.Max(x => x.SellPrice)).Client
-                                                                          , PriceRecords = group.ToList()
-                                                                          , CryptoCurrencyType = group.Key});
-            }
-            _priceComparisonResults = temp;
-        }
-
         public Task StopAsync()
         {
             _logger.LogInformation("Price Comparison Service is stopping.");
@@ -73,6 +49,28 @@ namespace CryptoPrices.Services
         public void Dispose()
         {
             _timer?.Dispose();
+        }
+
+        private void RefreshPrice(object state)
+        {
+            _logger.LogInformation("Price Retrieving Service is refreshing.");
+            _priceRecords = _priceRetrievingService.RefreshPriceRecordsAsync().Result;
+            var cryptoPrices = _priceRecords.GroupBy(x => x.Type).ToList();
+            var temp = new List<PriceComparisonResult>();
+            foreach (var group in cryptoPrices)
+            {
+                temp.Add(new PriceComparisonResult()
+                {
+                    PurchaseFrom = group.First(x => x.BuyPrice == group.Min(x => x.BuyPrice)).Client
+                                                                          ,
+                    SellTo = group.First(x => x.SellPrice == group.Max(x => x.SellPrice)).Client
+                                                                          ,
+                    PriceRecords = group.ToList()
+                                                                          ,
+                    CryptoCurrencyType = group.Key
+                });
+            }
+            _priceComparisonResults = temp;
         }
     }
 }

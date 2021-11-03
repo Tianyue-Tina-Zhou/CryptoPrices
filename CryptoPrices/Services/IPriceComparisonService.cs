@@ -1,15 +1,17 @@
 ﻿using CryptoPrices.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CryptoPrices.Services
 {
-    // This interface defines the contract for providing price comparisons
+    /// <summary>
+    /// This interface defines the contract for retrieving <see cref="PriceComparisonResult"/>
+    /// </summary>
     public interface IPriceComparisonService
     {
-        IEnumerable<PriceRecord> GetPriceRecords();
+        /// <summary>
+        /// Get a list of price comparison results
+        /// </summary>
+        /// <returns>List of <see cref="PriceComparisonResult"/></returns>
         IEnumerable<PriceComparisonResult> GetPriceComparisonResults();
     }
 }

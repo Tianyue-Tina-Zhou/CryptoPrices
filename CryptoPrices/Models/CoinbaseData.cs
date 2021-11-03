@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CryptoPrices.Models
 {
+    // Json mapping object for the response from Coinbase
     internal class CoinbaseData
     {
         [JsonPropertyName("data")]
