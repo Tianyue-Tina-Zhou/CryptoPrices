@@ -18,15 +18,15 @@ namespace CryptoPrices.Models
     internal class Value
     {
         // TODO change this! 
-        public string[] a { get; set; } = new string[3];
-
+        //public string[] a { get; set; } = new string[3];
+        public List<string> a { get; set; } = new List<string>(3);
         public List<string> b { get; set; } = new List<string>(3);
 
         [JsonIgnore]
-        public decimal SellPrice => System.Convert.ToDecimal(a[0]);
+        public decimal SellPrice => Math.Round(System.Convert.ToDecimal(a[0]), 2);
 
         [JsonIgnore]
-        public decimal BuyPrice => System.Convert.ToDecimal(b[0]);
+        public decimal BuyPrice => Math.Round(System.Convert.ToDecimal(b[0]), 2);
     }
 
     // Json mapping object for the response from Kraken

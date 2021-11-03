@@ -21,7 +21,7 @@ namespace CryptoPrices.Models
         public string Base { get; set; }
 
         [JsonIgnore]
-        public decimal Price => System.Convert.ToDecimal(Amount);
+        public decimal Price => Math.Round(System.Convert.ToDecimal(Amount), 2);
 
         [JsonIgnore]
         public CryptoCurrency CurrencyType => String.Equals(Base, "BTC") ? CryptoCurrency.Bitcoin : CryptoCurrency.Ethereum;
