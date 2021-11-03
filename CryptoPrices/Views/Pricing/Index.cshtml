@@ -2,7 +2,6 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    var priceRecord = ViewData["Prices"] as List<PriceRecord>;
     var results = ViewData["Results"] as List<PriceComparisonResult>;
 
 }
@@ -49,11 +48,5 @@
         <tr>
         </tr>
     </table>
-    @foreach (var item in @priceRecord)
-    {
-        <li>@item.BuyPrice</li>
-        <li>@item.SellPrice</li>
-        <li>@item.Client</li>
 
-    }
 }

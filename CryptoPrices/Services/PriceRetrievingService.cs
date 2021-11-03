@@ -28,16 +28,20 @@ namespace CryptoPrices.Services
             _krakenClient = new HttpClient() { BaseAddress = new Uri("https://api.kraken.com/") };
         }
 
-        public IEnumerable<PriceRecord> RefreshPriceRecords()
+        public async Task<IEnumerable<PriceRecord>> RefreshPriceRecordsAsync()
         {
             List<PriceRecord> priceRecords = new List<PriceRecord>();
             Task<PriceRecord> bitcoinCoinbase = GetCoinbaseData(CryptoCurrency.Bitcoin);
+            Task<PriceRecord> ethereumCoinbase = GetCoinbaseData(CryptoCurrency.Ethereum);
             Task<PriceRecord> bitcoinKraken = GetKrakenData(CryptoCurrency.Bitcoin);
-            Task.WhenAll(bitcoinCoinbase, bitcoinKraken);
+            Task<PriceRecord> ethereumKraken = GetKrakenData(CryptoCurrency.Ethereum);
+            await Task.WhenAll(bitcoinCoinbase, ethereumCoinbase, bitcoinKraken, ethereumKraken);
 
             priceRecords.Add(bitcoinCoinbase.Result);
             priceRecords.Add(bitcoinKraken.Result);
-            return priceRecords;
+            priceRecords.Add(ethereumCoinbase.Result);
+            priceRecords.Add(ethereumKraken.Result);
+            return priceRecords.Where(x => x!= null);
         }
 
         async Task<PriceRecord> GetCoinbaseData(CryptoCurrency type)
@@ -45,13 +49,15 @@ namespace CryptoPrices.Services
             Task<Data> buyPrice = RetrieveCoinbaseDataAsync(type, true);
             Task<Data> sellPrice = RetrieveCoinbaseDataAsync(type, false);
             await Task.WhenAll(buyPrice, sellPrice);
+            if (buyPrice?.Result == null || sellPrice?.Result == null) return null;
             return new PriceRecord() { BuyPrice = buyPrice.Result.Price, SellPrice = sellPrice.Result.Price, Type = type, Client = "Coinbase" };
         }
 
         async Task<PriceRecord> GetKrakenData(CryptoCurrency type)
         {
             KrakenData data = await RetrieveKrakenDataAsync(type);
-            var value = type == CryptoCurrency.Bitcoin ? data.CurrentPrice.BTZValue : data.CurrentPrice.BTZValue;
+            if (data == null) return null;
+            var value = type == CryptoCurrency.Bitcoin ? data.CurrentPrice.BTZValue : data.CurrentPrice.ETHValue;
             return new PriceRecord() { BuyPrice = value.BuyPrice, SellPrice = value.SellPrice, Type = type, Client = "Kraken" };
         }
 
@@ -62,12 +68,11 @@ namespace CryptoPrices.Services
             {
                 HttpResponseMessage response = await _coinbaseClient.GetAsync($"v2/prices/{(type == CryptoCurrency.Bitcoin ? "BTC" : "ETH") }-USD/{(buy ? "buy" : "sell")}"
                                                                              , _cancellationToken);
-
                 response.EnsureSuccessStatusCode();
                 using (HttpContent content = response.Content)
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
-                    data = JsonSerializer.Deserialize<CoinbaseData>(responseBody).Data;
+                    data = JsonSerializer.Deserialize<CoinbaseData>(responseBody)?.Data;
                 }
 
             }

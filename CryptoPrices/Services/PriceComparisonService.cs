@@ -50,16 +50,17 @@ namespace CryptoPrices.Services
         private void RefreshPrice(object state)
         {
             _logger.LogInformation("Price Retrieving Service is refreshing.");
-            _priceRecords = _priceRetrievingService.RefreshPriceRecords();
+            _priceRecords = _priceRetrievingService.RefreshPriceRecordsAsync().Result;
             var cryptoPrices = _priceRecords.GroupBy(x => x.Type).ToList();
-            _priceComparisonResults = new List<PriceComparisonResult>();
+            var temp = new List<PriceComparisonResult>();
             foreach (var group in cryptoPrices)
             {
-                _priceComparisonResults.Add(new PriceComparisonResult() { PurchaseFrom = group.First(x =>x.BuyPrice == group.Min(x =>x.BuyPrice)).Client
+                temp.Add(new PriceComparisonResult() { PurchaseFrom = group.First(x =>x.BuyPrice == group.Min(x =>x.BuyPrice)).Client
                                                                           , SellTo = group.First(x => x.SellPrice == group.Max(x => x.SellPrice)).Client
                                                                           , PriceRecords = group.ToList()
                                                                           , CryptoCurrencyType = group.Key});
             }
+            _priceComparisonResults = temp;
         }
 
         public Task StopAsync()

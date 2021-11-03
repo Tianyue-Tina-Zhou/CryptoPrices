@@ -10,6 +10,9 @@ namespace CryptoPrices.Models
     {
         [JsonPropertyName("XXBTZUSD")]
         public Value BTZValue { get; set; }
+
+        [JsonPropertyName("XETHZUSD")]
+        public Value ETHValue { get; set; }
     }
 
     internal class Value

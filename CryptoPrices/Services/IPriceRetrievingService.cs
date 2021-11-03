@@ -8,6 +8,6 @@ namespace CryptoPrices.Services
 {
     public interface IPriceRetrievingService
     {
-        IEnumerable<PriceRecord> RefreshPriceRecords();
+        Task<IEnumerable<PriceRecord>> RefreshPriceRecordsAsync();
     }
 }
