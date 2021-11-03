@@ -10,5 +10,6 @@ namespace CryptoPrices.Services
     public interface IPriceComparisonService
     {
         IEnumerable<PriceRecord> GetPriceRecords();
+        IEnumerable<PriceComparisonResult> GetPriceComparisonResults();
     }
 }

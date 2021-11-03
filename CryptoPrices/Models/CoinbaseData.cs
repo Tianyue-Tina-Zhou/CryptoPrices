@@ -5,6 +5,7 @@ namespace CryptoPrices.Models
 {
     internal class CoinbaseData
     {
+        [JsonPropertyName("data")]
         public Data Data { get; set; }
     }
 

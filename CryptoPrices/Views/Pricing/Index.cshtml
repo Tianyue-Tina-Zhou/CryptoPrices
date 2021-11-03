@@ -3,12 +3,43 @@
 *@
 @{
     var priceRecord = ViewData["Prices"] as List<PriceRecord>;
+    var results = ViewData["Results"] as List<PriceComparisonResult>;
+
 }
 @{
     <div class="text-center">
         <h1 class="display-4">Crypto Prices</h1>
     </div>
 
+    @foreach (var item in @results)
+    {
+<div class="text-center">
+    <h2 class="display-4">@item.CryptoCurrencyType</h2>
+    <li>Buy from: @item.PurchaseFrom</li>
+    <li>Sell to: @item.SellTo</li>
+
+    @foreach (var price in item.PriceRecords)
+    {
+<tr>
+    <th>BuyPrice</th>
+    <th>SellPrice</th>
+    <th>Client</th>
+</tr>
+<tr>
+    <th>@price.BuyPrice</th>
+    <th>@price.SellPrice</th>
+    <th>@price.Client</th>
+</tr>
+
+    }
+</div>
+
+    }
+
+
+    <div class="text-center">
+        <h1 class="display-4">Crypto Prices</h1>
+    </div>
     <table>
         <tr>
             <th>BuyPrice</th>

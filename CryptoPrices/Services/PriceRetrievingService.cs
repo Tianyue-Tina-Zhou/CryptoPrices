@@ -1,7 +1,6 @@
 ﻿using CryptoPrices.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System;
@@ -68,7 +67,7 @@ namespace CryptoPrices.Services
                 using (HttpContent content = response.Content)
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
-                    data = JsonConvert.DeserializeObject<CoinbaseData>(responseBody).Data;
+                    data = JsonSerializer.Deserialize<CoinbaseData>(responseBody).Data;
                 }
 
             }
@@ -91,7 +90,7 @@ namespace CryptoPrices.Services
                 using (HttpContent content = response.Content)
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
-                    data = System.Text.Json.JsonSerializer.Deserialize<KrakenData>(responseBody);
+                    data = JsonSerializer.Deserialize<KrakenData>(responseBody);
                 }
 
             }
