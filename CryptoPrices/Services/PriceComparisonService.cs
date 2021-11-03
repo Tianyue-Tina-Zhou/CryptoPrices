@@ -61,12 +61,9 @@ namespace CryptoPrices.Services
             {
                 temp.Add(new PriceComparisonResult()
                 {
-                    PurchaseFrom = group.First(x => x.BuyPrice == group.Min(x => x.BuyPrice)).Client
-                                                                          ,
-                    SellTo = group.First(x => x.SellPrice == group.Max(x => x.SellPrice)).Client
-                                                                          ,
-                    PriceRecords = group.ToList()
-                                                                          ,
+                    PurchaseFrom = group.First(x => x.BuyPrice == group.Min(x => x.BuyPrice)).Client,
+                    SellTo = group.First(x => x.SellPrice == group.Max(x => x.SellPrice)).Client,
+                    PriceRecords = group.ToList(),
                     CryptoCurrencyType = group.Key
                 });
             }
